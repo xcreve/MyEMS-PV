@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-base: var(--bg-base);
+  --color-bg-card: var(--bg-card);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
+}
+
+:root {
+  /* Light mode by default */
+  --bg-base: #f3f4f6;
+  --bg-card: #ffffff;
+  --border-subtle: #e5e7eb;
+  --border-strong: #d1d5db;
+  --text-main: #111827;
+  --text-muted: #6b7280;
+}
+
+.dark {
+  --bg-base: #0a0a0a;
+  --bg-card: #141414;
+  --border-subtle: #1a1a1a;
+  --border-strong: #222222;
+  --text-main: #ffffff;
+  --text-muted: #9ca3af;
+}
+
+/* Custom Scrollbar for Data Analysis */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--bg-base);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}

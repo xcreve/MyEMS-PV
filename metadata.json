@@ -1,0 +1,5 @@
+{
+  "name": "MyEMS Solar PV Manager",
+  "description": "A distributed solar PV management system for monitoring inverters, tracking power generation, and managing station assets.",
+  "requestFramePermissions": []
+}
