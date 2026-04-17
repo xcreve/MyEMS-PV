@@ -6,3 +6,6 @@ coverage/
 *.log
 .env*
 !.env.example
+.m2/
+.tmp-maven-central-settings.xml
+.claude/

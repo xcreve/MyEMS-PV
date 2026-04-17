@@ -1,10 +1,12 @@
 # MyEMS-PV 分布式光伏电站管理系统
 
-> **Codex 交接文档** · 更新时间：2026-04-15 · 评估模型：Claude Opus 4.6
+![version](https://img.shields.io/badge/version-2.0.0--rc1-blue) ![tests](https://img.shields.io/badge/tests-91%2F91%20%7C%2026%2F26-green) ![uat](https://img.shields.io/badge/UAT-passed-green) ![security](https://img.shields.io/badge/OWASP%20DC-pending-lightgrey)
+
+> **Codex 交接文档** · 更新时间：2026-04-16 · 评估模型：Claude Opus 4.6
 
 一套面向分布式光伏电站的全栈能源管理系统，提供实时监控、设备管理、告警处置和发电量分析能力。
 
-**当前状态**：✅ 全栈 MVP 已完成 → 🔧 进入生产级优化阶段
+**当前状态**：✅ `v2.0.0-rc1` 候选发布物料已齐备，UAT 实跑通过
 
 ---
 
@@ -18,6 +20,7 @@ MyEMS-PV/
 │   ├── ruoyi-framework/       # 框架（拦截器/权限/AOP）
 │   ├── ruoyi-common/          # 公共工具 & 注解
 │   ├── ruoyi-quartz/          # 定时任务
+│   ├── ruoyi-coverage/        # JaCoCo aggregate 聚合报表模块
 │   ├── ruoyi-generator/       # 代码生成器
 │   └── sql/
 │       ├── ry_20260321.sql    # RuoYi 基础库（sys_user/sys_menu/...）
@@ -32,8 +35,8 @@ MyEMS-PV/
 │   ├── src/router/            # 路由（动态路由由后端菜单注入）
 │   ├── src/store/             # Pinia
 │   └── src/assets/styles/pv.scss  # 全站 CSS 变量主题
-├── docker/                    # 部署与辅助容器文件
-├── scripts/                   # 辅助脚本
+├── docker/                    # Docker Compose / Dockerfile / nginx / initdb / 部署指南
+├── scripts/                   # 辅助脚本（含 API / WebSocket 冒烟测试）
 ├── FEASIBILITY_PLAN.md        # ⭐ 可行性修改方案 v2.0（6 周路线图）
 ├── DEVELOPER_GUIDE.md         # 开发者快速参考
 ├── COMPLETION_SUMMARY.md      # 交付物总结
@@ -51,13 +54,13 @@ MyEMS-PV/
 |---|---|---|
 | JDK | 17 | `maven.compiler.source=17` |
 | Spring Boot | 4.0.3 | `ruoyi-admin/pom.xml` |
-| RuoYi Framework | 3.9.2 | 内置 JWT + RBAC + 代码生成 |
+| RuoYi Framework | 2.0.0-rc1 | 基于若依 3.9.2 定制，内置 JWT + RBAC + 代码生成 |
 | MyBatis | 4.0.1 | XML Mapper + `resultMap` 命名映射 |
 | MySQL | 8.x | 字符集 `utf8mb4` |
 | Druid | 1.2.28 | 连接池 + 监控 |
 | PageHelper | 2.1.1 | `startPage() + getDataTable()` |
 | Spring Security | - | `@PreAuthorize("@ss.hasPermi(...)")` |
-| Quartz | - | 遥测清理 + 网关心跳巡检定时任务 |
+| Quartz | - | 遥测清理 + 网关心跳巡检 + 分区维护任务 |
 | Apache POI | 4.1.2 | 发电量报表导出（poi-ooxml） |
 
 ### 前端（`ruoyi-vue3-myems/`）
@@ -78,6 +81,8 @@ MyEMS-PV/
 
 ## 🚀 快速启动
 
+> 发布候选的升级、回滚、预检与验收说明见 [docs/release_notes_v2.0.0-rc1.md](/Users/xuyongqian/AI%20Code/MyEMS-PV/docs/release_notes_v2.0.0-rc1.md)。
+
 ### 前置条件
 
 - **JDK 17**（后端）
@@ -86,7 +91,29 @@ MyEMS-PV/
 - **Redis 6+**（RuoYi 默认依赖，用于 token/缓存）
 - **Node.js 18+**（前端）
 
-### 1. 初始化数据库
+### 方式 A. Docker Compose（UAT 推荐）
+
+```bash
+cp docker/.env.example docker/.env
+docker compose --env-file docker/.env -f docker/docker-compose.yml up -d --build
+```
+
+启动完成后，先跑冒烟：
+
+```bash
+BASE_URL=http://localhost:8080 ./scripts/smoke_test.sh
+BASE_URL=http://localhost/prod-api ./scripts/smoke_test_websocket.sh
+```
+
+说明：
+
+- `docker-compose.yml` 会启动 `MySQL 8 + Redis + ruoyi-admin + ruoyi-vue3`
+- MySQL 首次启动时会自动导入 `ry_20260321.sql`、`quartz.sql`、`myems_pv.sql`
+- UAT 引导脚本会自动关闭验证码，便于 `smoke_test.sh` 直接登录 `admin/admin123`
+- `smoke_test_websocket.sh` 优先使用 `websocat/wscat`，缺失时会自动回退到 Node 原生 `WebSocket`
+- 更完整的停机窗口、回滚与排障说明见 [deploy_guide.md](/Users/xuyongqian/AI%20Code/MyEMS-PV/docker/deploy_guide.md)
+
+### 方式 B. 本地开发初始化数据库
 
 ```bash
 # 1) 建库
@@ -144,6 +171,13 @@ npm run dev
 2. 用 `admin/admin123` 登录
 3. 左侧菜单 → **光伏管理** → 子菜单：监控大屏 / 电站管理 / 接入设备 / 逆变器管理 / 数据分析 / 系统告警 / 基础资料
 4. 在「监控大屏」页点击「**模拟数据**」按钮可一键生成样本 telemetry/alert 数据
+
+### 方式 C. UAT 验收结果（2026-04-16）
+
+- 首次 Docker Compose 实跑 UAT 已通过
+- 验收报告：[docs/uat_report_2026-04-16.md](/Users/xuyongqian/AI%20Code/MyEMS-PV/docs/uat_report_2026-04-16.md)
+- 运行日志：[scripts/uat_run_20260416.log](/Users/xuyongqian/AI%20Code/MyEMS-PV/scripts/uat_run_20260416.log)
+- 关键结果：`/actuator/health = UP`、API smoke `34/34`、WebSocket smoke `10s` 内收帧、后端测试 `91/91`、前端测试 `26/26`
 
 ---
 
@@ -236,13 +270,22 @@ POST   /pv/model         PUT /pv/model         DELETE /pv/model/{modelId}
 | `ruoyi-admin/src/test/java/com/ruoyi/web/controller/pv/PvWebMvcTest.java` | Boot 4 WebMvcTest 元注解，裁剪若依全局 Security/Resources 配置 |
 | `ruoyi-quartz/.../task/PvGatewayPollingTask.java` | 心跳巡检 + 轮询窗口判定 + ModbusTCP 主动采集 |
 | `ruoyi-quartz/.../task/PvTelemetryTask.java` | 遥测数据月度清理（保留 90 天） |
+| `ruoyi-quartz/.../task/pv/PvTelemetryPartitionMaintainTask.java` | `pv_telemetry` 月分区滚动维护任务（每月补未来分区并删除过期分区） |
 | `ruoyi-system/src/test/.../pv/PvMonitoringServiceImplTest.java` | 12 个测试（含 ModbusTCP 寄存器读取） |
 | `ruoyi-system/src/test/.../pv/PvAssetServiceImplTest.java` | 12 个测试（CRUD + 外键 + 缓存失效） |
 | `ruoyi-system/src/test/.../pv/impl/PvMqttIngestServiceTest.java` | 3 个测试（动态订阅、遥测入库、单逆变器回退） |
 | `ruoyi-system/src/test/.../pv/impl/PvAlertDispatchServiceImplTest.java` | 4 个测试（异步分发、节流命中、失败回退、状态过滤） |
 | `ruoyi-quartz/src/test/.../PvGatewayPollingTaskTest.java` | 3 个测试（间隔判定 + 离线检测） |
+| `ruoyi-quartz/src/test/.../task/pv/PvTelemetryPartitionMaintainTaskTest.java` | 3 个测试（补未来分区、删除过期分区、缺失 `pmax` 失败） |
 | `sql/myems_pv.sql` | Schema + 菜单 + 权限 + Quartz 默认任务 |
-| `sql/pv_telemetry_partition_upgrade.sql` | 月分区迁移脚本（待维护窗口执行） |
+| `sql/pv_telemetry_partition.sql` | `pv_telemetry` 分区迁移脚本（预建 `p202604`–`p202703` + `pmax`） |
+| `sql/pv_telemetry_partition_maintain.sql` | 月分区维护脚本（ADD 新分区 + DROP 超过保留窗口的旧分区） |
+| `scripts/runbook_pv_telemetry_partition.md` | 分区维护窗口 SOP、决策树、回滚方案与验证 SQL |
+| `scripts/smoke_test.sh` | 后端 API 冒烟脚本（登录 + 8 个 PV Controller 核心端点 + 电站 CRUD 循环） |
+| `scripts/smoke_test_websocket.sh` | 大屏 WebSocket 冒烟脚本（登录后等待首条推送） |
+| `docker/docker-compose.yml` | UAT 一键部署编排（MySQL/Redis/Admin/Vue3） |
+| `docker/deploy_guide.md` | Docker Compose 部署、回滚、验证与排障指南 |
+| `ruoyi-coverage/pom.xml` | JaCoCo aggregate 聚合模块，输出 `target/site/jacoco-aggregate/` |
 
 ### 前端
 
@@ -287,7 +330,7 @@ POST   /pv/model         PUT /pv/model         DELETE /pv/model/{modelId}
 3. **P0-3 · ✅ 模拟数据分布不均** — 已改为 `Collections.shuffle()` + 70/15/15 比例分配
 4. **P0-4 · ✅ Dashboard Summary N+1** — 已合并为单条聚合 SQL + RedisCache 30s TTL
 5. **P0-5 · ✅ 导出行限制** — 已加入 5000 行硬上限
-6. **P0-6 · 🟡 时序数据分区** — 复合索引 + 清理任务已完成，月分区待维护窗口执行
+6. **P0-6 · ✅ 时序数据分区** — `pv_telemetry` 目标表结构已切为月分区版，补齐迁移脚本、月维护脚本、停机 runbook、Quartz `pvTelemetryPartitionMaintainTask.maintainMonthlyPartitions(12)` 与单测
 
 ### 🟡 P1 应该做（第 2-3 周）
 
@@ -297,7 +340,7 @@ POST   /pv/model         PUT /pv/model         DELETE /pv/model/{modelId}
 10. **P1-4 · ✅ WebSocket 大屏推送** — 已新增 dashboard 刷新事件、后端 `spring-websocket` 推送、token 握手鉴权，以及前端断线回退 60 秒轮询
 11. **P1-5 · ✅ 操作审计** — 8 个 PV Controller 的写操作与导出操作已统一补全 `@Log` 元数据，标题前缀改为 `PV-`，并关闭响应体落日志，方便 `sys_oper_log` 按 PV 业务过滤
 12. **P1-6 · ✅ i18n** — 已引入 `vue-i18n@next`，新增 `src/lang/zh-CN/pv.json` 和 `src/lang/en-US/pv.json`，8 个 PV 页面文案已改为 `$t('pv.xxx')`，`PvAssetServiceImpl` 防删守卫消息已切到 `MessageUtils.message()`，`npm run build:prod` 构建通过
-13. **P1-7 · ✅ Service + Controller 测试** — 已新增 `ruoyi-admin/src/test/java/com/ruoyi/web/controller/pv/` 下 8 个 MockMvc 集成测试（54 个用例），覆盖 401/403/400/正常返回路径；Maven 实跑结果 `ruoyi-system 31/31`、`ruoyi-quartz 3/3`、`ruoyi-admin Controller 54/54`，全链路 `88/88` 通过
+13. **P1-7 · ✅ Service + Controller 测试** — 已新增 `ruoyi-admin/src/test/java/com/ruoyi/web/controller/pv/` 下 8 个 MockMvc 集成测试（54 个用例），覆盖 401/403/400/正常返回路径；叠加 `PvTelemetryPartitionMaintainTaskTest` 后，Maven 实跑结果为 `ruoyi-system 31/31`、`ruoyi-quartz 6/6`、`ruoyi-admin Controller 54/54`，全链路 `91/91` 通过，并已输出 JaCoCo aggregate 报表
 
 ### 🟢 P2 锦上添花（第 4-6 周）
 
@@ -359,26 +402,39 @@ mvn -pl ruoyi-quartz -am test \
   -Dtest=PvGatewayPollingTaskTest \
   -Dsurefire.failIfNoSpecifiedTests=false
 
-mvn -pl ruoyi-admin -am test
+mvn -pl ruoyi-system,ruoyi-quartz,ruoyi-admin -am test
+mvn clean test jacoco:report-aggregate
 
 cd ../ruoyi-vue3-myems
 npm run build:prod
 ```
 
+部署后的 UAT 冒烟命令：
+
+```bash
+cd ..
+BASE_URL=http://localhost:8080 ./scripts/smoke_test.sh
+BASE_URL=http://localhost/prod-api ./scripts/smoke_test_websocket.sh
+```
+
 实测结果：
 - `PvMonitoringServiceImplTest` + `PvAssetServiceImplTest` + `PvAlertDispatchServiceImplTest`：`28/28` 通过
 - `PvMqttIngestServiceTest`：`3/3` 通过
-- `PvGatewayPollingTaskTest`：`3/3` 通过
+- `PvGatewayPollingTaskTest` + `PvTelemetryPartitionMaintainTaskTest`：`6/6` 通过
 - `ruoyi-admin/src/test/java/com/ruoyi/web/controller/pv/`：8 个 Controller 测试类 `54/54` 通过
-- 反应堆总计：`88/88` 通过
+- 反应堆总计：`91/91` 通过
 - `ruoyi-vue3-myems`：`npm run build:prod` 通过
 - `P1-6 i18n`：8 个 PV 页面中文硬编码已替换为 `$t('pv.xxx')`，`PvAssetServiceImpl` 消息键化后回归 `PvMonitoringServiceImplTest + PvAssetServiceImplTest = 24/24` 通过
-- JaCoCo 行覆盖率：`PvMonitoringServiceImpl = 80.2%`、`PvAssetServiceImpl = 100%`
+- JaCoCo aggregate：输出目录 `ruoyi-java-myems/target/site/jacoco-aggregate/`
+- `com.ruoyi.web.controller.pv` 包覆盖率：`Line 98.57%`、`Branch 50.00%`
+- `com.ruoyi.system.service.pv.impl` 包覆盖率：`Line 73.54%`、`Branch 52.66%`
+- Service 实现明细：`PvMonitoringServiceImpl = Line 83% / Branch 54%`，`PvAssetServiceImpl = Line 94% / Branch 55%`
+- W5 UAT：`2026-04-16` 首次 Docker Compose 实跑通过，报告见 [docs/uat_report_2026-04-16.md](/Users/xuyongqian/AI%20Code/MyEMS-PV/docs/uat_report_2026-04-16.md)
 
 说明：
 - 仓库当前未附带 `mvnw`，执行上述命令前需要本机安装 Maven 3.9+。
 - 当前 JDK 25 环境已补 `src/test/resources/mockito-extensions/` 配置，确保 Mockito 测试可执行；运行时仍可能看到 ByteBuddy 动态 agent 警告，但不影响结果。
-- `FEASIBILITY_PLAN.md v2.0` 中的 Service 覆盖率目标（≥ 70%）已达成；Controller 层已补 54 个 MockMvc 用例并覆盖 8 个公开 PV Controller，满足本轮 ≥ 50% 的实施目标，当前 `ruoyi-admin` 未单独输出 JaCoCo 报表。
+- `FEASIBILITY_PLAN.md v2.0` 中的 Service 覆盖率目标（≥ 70%）已达成；Controller 层已通过 aggregate 报表落到 `Line 98.57% / Branch 50.00%`，满足本轮 ≥ 50% 的实施目标。
 
 ### 前端
 

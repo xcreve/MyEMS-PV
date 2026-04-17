@@ -1,0 +1,41 @@
+PASS /captchaImage HTTP 200
+PASS /captchaImage JSON path captchaEnabled
+PASS /login HTTP 200
+PASS /login JSON path token
+PASS /login token acquired
+PASS /pv/dashboard/summary HTTP 200
+PASS /pv/dashboard/summary JSON path data.totalStations
+PASS /pv/station/list HTTP 200
+PASS /pv/station/list JSON array rows
+PASS POST /pv/station HTTP 200
+PASS POST /pv/station code=200
+PASS GET /pv/station/list?stationName=<unique> HTTP 200
+PASS GET /pv/station/list?stationName=<unique> JSON array rows
+PASS GET /pv/station/list?stationName=<unique> JSON path rows[0].stationId
+PASS PUT /pv/station HTTP 200
+PASS PUT /pv/station code=200
+PASS GET /pv/station/5 HTTP 200
+PASS GET /pv/station/5 data.location=UAT smoke site updated
+PASS DELETE /pv/station/5 HTTP 200
+PASS DELETE /pv/station/5 code=200
+PASS GET /pv/station/list?stationName=<unique> after delete HTTP 200
+PASS GET /pv/station/list?stationName=<unique> after delete rows length=0
+PASS /pv/gateway/list HTTP 200
+PASS /pv/gateway/list JSON array rows
+PASS /pv/inverter/list HTTP 200
+PASS /pv/inverter/list JSON array rows
+PASS /pv/alert/list HTTP 200
+PASS /pv/alert/list JSON array rows
+PASS /pv/analysis/hourly-yield HTTP 200
+PASS /pv/analysis/hourly-yield JSON array data
+PASS /pv/stationTag/list HTTP 200
+PASS /pv/stationTag/list JSON array rows
+PASS /pv/model/list HTTP 200
+PASS /pv/model/list JSON array rows
+
+Smoke test passed. Assertions: 34
+exit 0
+Connecting with node -> ws://localhost:8080/ws/pv/dashboard?token=eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImxvZ2luX3VzZXJfa2V5IjoiY2ZmYTVlOTctOWM5Yi00YmRjLTkxZTUtMjYyMjAzYjY1NDc3In0.A7lUTJSImEDep59V6iv7cFP1f5Aff_TcjvXi2w8yvsNb5OpbpzAmS_m2SiVS-ylAlybmUS5CvW60JSyP7t2wIQ
+{"alerts":[{"alertId":1,"content":"å®æ³¢è¾¹ç¼˜ç½‘å…³é€šä¿¡ä¸­æ–­","createBy":"admin","createTime":"2026-04-16 07:49:43","legacyFirebaseId":"legacy-alert-001","level":"warning","occurTime":"2026-04-16 07:19:43","params":{},"remark":"é»˜è®¤æ¼”ç¤ºå‘Šè­¦","source":"å®æ³¢è¾¹ç¼˜ç½‘å…³ / INV-03","status":"active"}],"powerSeries":[{"avgPowerKw":0.00,"hour":"2026-04-15 17:00:00"},{"avgPowerKw":0.00,"hour":"2026-04-15 18:00:00"},{"avgPowerKw":0.00,"hour":"2026-04-15 19:00:00"},{"avgPowerKw":0.00,"hour":"2026-04-15 20:00:00"},{"avgPowerKw":0.00,"hour":"2026-04-15 21:00:00"},{"avgPowerKw":0.00,"hour":"2026-04-15 22:00:00"},{"avgPowerKw":0.00,"hour":"2026-04-15 23:00:00"},{"avgPowerKw":0.00,"hour":"2026-04-16 00:00:00"},{"avgPowerKw":0.00,"hour":"2026-04-16 01:00:00"},{"avgPowerKw":0.00,"hour":"2026-04-16 02:00:00"},{"avgPowerKw":0.00,"hour":"2026-04-16 03:00:00"},{"avgPowerKw":0.00,"hour":"2026-04-16 04:00:00"},{"avgPowerKw":0.00,"hour":"2026-04-16 05:00:00"},{"avgPowerKw":0.00,"hour":"2026-04-16 06:00:00"},{"avgPowerKw":0.00,"hour":"2026-04-16 07:00:00"},{"avgPowerKw":0.00,"hour":"2026-04-16 08:00:00"},{"avgPowerKw":0.00,"hour":"2026-04-16 09:00:00"},{"avgPowerKw":41.00,"hour":"2026-04-16 10:00:00"},{"avgPowerKw":67.00,"hour":"2026-04-16 11:00:00"},{"avgPowerKw":74.00,"hour":"2026-04-16 12:00:00"},{"avgPowerKw":51.67,"hour":"2026-04-16 13:00:00"},{"avgPowerKw":80.30,"hour":"2026-04-16 14:00:00"},{"avgPowerKw":0.00,"hour":"2026-04-16 15:00:00"},{"avgPowerKw":0.00,"hour":"2026-04-16 16:00:00"}],"pushedAt":"2026-04-16 16:01:23","source":"websocket.connect","summary":{"activeAlerts":1,"currentPowerKw":56.70,"dailyYieldKwh":528.82,"onlineInverters":1,"totalCapacityMw":19.30,"totalInverters":3,"totalStations":2}}
+PASS websocket push received within 10s
+exit 0
