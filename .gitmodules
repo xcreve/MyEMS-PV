@@ -1,0 +1,8 @@
+[submodule "ruoyi-java-myems"]
+	path = ruoyi-java-myems
+	url = https://github.com/xcreve/RuoYi-Vue.git
+	branch = release/v2.0.0-rc1
+[submodule "ruoyi-vue3-myems"]
+	path = ruoyi-vue3-myems
+	url = https://github.com/xcreve/RuoYi-Vue3.git
+	branch = release/v2.0.0-rc1
