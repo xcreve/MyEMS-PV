@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-04-18
+
+### Added
+
+- 根仓正式版发布物料：[docs/release_manifest_v2.0.0.md](/Users/xuyongqian/AI%20Code/MyEMS-PV/docs/release_manifest_v2.0.0.md) 与 [docs/release_notes_v2.0.0.md](/Users/xuyongqian/AI%20Code/MyEMS-PV/docs/release_notes_v2.0.0.md)。
+
+### Changed
+
+- `v2.0.0` 正式版沿用 `v2.0.0-rc1` 已通过 UAT 的双子仓代码，不新增后端或前端业务代码变更。
+- 根仓 `.gitmodules` 默认跟踪分支切换为子仓 `release/v2.0.0`，GitHub Release `v2.0.0` 已发布并标记为 Latest。
+
 ## [2.0.0-rc1] - 2026-04-17
 
 ### Added

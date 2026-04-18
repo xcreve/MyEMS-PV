@@ -1,12 +1,12 @@
 # MyEMS-PV 分布式光伏电站管理系统
 
-![version](https://img.shields.io/badge/version-2.0.0--rc1-blue) ![tests](https://img.shields.io/badge/tests-91%2F91%20%7C%2026%2F26-green) ![uat](https://img.shields.io/badge/UAT-passed-green) ![security](https://img.shields.io/badge/OWASP%20DC-pending-lightgrey)
+![version](https://img.shields.io/badge/version-2.0.0-blue) ![tests](https://img.shields.io/badge/tests-91%2F91%20%7C%2026%2F26-green) ![uat](https://img.shields.io/badge/UAT-passed-green) ![security](https://img.shields.io/badge/OWASP%20DC-pending-lightgrey)
 
 > **Codex 交接文档** · 更新时间：2026-04-16 · 评估模型：Claude Opus 4.6
 
 一套面向分布式光伏电站的全栈能源管理系统，提供实时监控、设备管理、告警处置和发电量分析能力。
 
-**当前状态**：✅ `v2.0.0-rc1` 候选发布物料已齐备，UAT 实跑通过
+**当前状态**：✅ `v2.0.0` 正式版已发布，UAT 实跑通过，GitHub Release 已标记为 Latest
 
 ---
 
@@ -54,7 +54,7 @@ MyEMS-PV/
 |---|---|---|
 | JDK | 17 | `maven.compiler.source=17` |
 | Spring Boot | 4.0.3 | `ruoyi-admin/pom.xml` |
-| RuoYi Framework | 2.0.0-rc1 | 基于若依 3.9.2 定制，内置 JWT + RBAC + 代码生成 |
+| RuoYi Framework | 2.0.0 | 基于若依 3.9.2 定制，内置 JWT + RBAC + 代码生成 |
 | MyBatis | 4.0.1 | XML Mapper + `resultMap` 命名映射 |
 | MySQL | 8.x | 字符集 `utf8mb4` |
 | Druid | 1.2.28 | 连接池 + 监控 |
@@ -81,7 +81,7 @@ MyEMS-PV/
 
 ## 🚀 快速启动
 
-> 发布候选的升级、回滚、预检与验收说明见 [docs/release_notes_v2.0.0-rc1.md](/Users/xuyongqian/AI%20Code/MyEMS-PV/docs/release_notes_v2.0.0-rc1.md)。
+> 正式版的升级、回滚、预检与验收说明见 [docs/release_notes_v2.0.0.md](/Users/xuyongqian/AI%20Code/MyEMS-PV/docs/release_notes_v2.0.0.md)。
 
 ### 前置条件
 

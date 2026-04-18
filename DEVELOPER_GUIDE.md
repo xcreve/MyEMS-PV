@@ -546,8 +546,8 @@ npm run build
 ### Docker 部署
 ```bash
 # 创建 Dockerfile
-docker build -t myems-pv:latest .
-docker run -p 80:5173 myems-pv:latest
+docker build -t myems-pv:v2.0.0 .
+docker run -p 80:5173 myems-pv:v2.0.0
 ```
 
 ---
