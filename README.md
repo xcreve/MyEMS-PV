@@ -111,7 +111,7 @@ BASE_URL=http://localhost/prod-api ./scripts/smoke_test_websocket.sh
 - MySQL 首次启动时会自动导入 `ry_20260321.sql`、`quartz.sql`、`myems_pv.sql`
 - UAT 引导脚本会自动关闭验证码，便于 `smoke_test.sh` 直接登录 `admin/admin123`
 - `smoke_test_websocket.sh` 优先使用 `websocat/wscat`，缺失时会自动回退到 Node 原生 `WebSocket`
-- 更完整的停机窗口、回滚与排障说明见 [deploy_guide.md](/Users/xuyongqian/AI%20Code/MyEMS-PV/docker/deploy_guide.md)
+- 更完整的停机窗口、回滚与排障说明见 [deploy_guide.md](/Users/xuyongqian/AI%20Code/MyEMS-PV/docs/deploy_guide.md)
 
 ### 方式 B. 本地开发初始化数据库
 
@@ -284,7 +284,7 @@ POST   /pv/model         PUT /pv/model         DELETE /pv/model/{modelId}
 | `scripts/smoke_test.sh` | 后端 API 冒烟脚本（登录 + 8 个 PV Controller 核心端点 + 电站 CRUD 循环） |
 | `scripts/smoke_test_websocket.sh` | 大屏 WebSocket 冒烟脚本（登录后等待首条推送） |
 | `docker/docker-compose.yml` | UAT 一键部署编排（MySQL/Redis/Admin/Vue3） |
-| `docker/deploy_guide.md` | Docker Compose 部署、回滚、验证与排障指南 |
+| `docs/deploy_guide.md` | Docker Compose 部署、回滚、验证与排障指南 |
 | `ruoyi-coverage/pom.xml` | JaCoCo aggregate 聚合模块，输出 `target/site/jacoco-aggregate/` |
 
 ### 前端

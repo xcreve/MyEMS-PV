@@ -253,3 +253,84 @@ docs/uat_report_2026-04-16.md
 
 - 根仓没有 release CI / artifact workflow；如需镜像 digest、二进制下载链接或镜像仓留档，需要先补发布流水线
 - 根仓 `docs/` 下没有生产部署文档；生产 / 预生产切换仍需人工按环境流程执行
+
+## 7. 安全扫描
+
+状态：`失败`
+
+补充时间（本地）：`2026-04-19 00:32:45 +0800 (CST)`
+
+检查命令：
+
+```bash
+printenv NVD_API_KEY | wc -c
+```
+
+实际输出：
+
+```text
+0
+```
+
+扫描命令：
+
+```bash
+mvn -B -DskipTests -Dformat=JSON,HTML dependency-check:aggregate
+```
+
+关键输出摘录：
+
+```text
+[WARNING] The following dependencies could not be resolved at this point of the build but seem to be part of the reactor:
+[WARNING] o com.ruoyi:ruoyi-framework:jar:2.0.0-rc1 (compile)
+[WARNING] o com.ruoyi:ruoyi-system:jar:2.0.0-rc1 (compile)
+[WARNING] Try running the build up to the lifecycle phase "package"
+[INFO] --- dependency-check:12.1.0:aggregate (default-cli) @ ruoyi ---
+```
+
+进程定位命令：
+
+```bash
+ps -ef | rg "dependency-check:aggregate|org\.codehaus\.plexus\.classworlds\.launcher"
+```
+
+实际输出摘录：
+
+```text
+501 34099 ... org.codehaus.plexus.classworlds.launcher.Launcher -B -DskipTests -Dformat=JSON,HTML dependency-check:aggregate
+```
+
+终止命令：
+
+```bash
+kill -9 34099
+```
+
+实际输出：
+
+```text
+```
+
+报告文件检查：
+
+```bash
+find ruoyi-java-myems -path '*/target/*' \( -name 'dependency-check-report*' -o -name 'dependency-check*' \) | sort
+```
+
+实际输出：
+
+```text
+```
+
+结论：
+
+- 仓内存在现成 OWASP Dependency-Check Maven 配置，但当前环境 `NVD_API_KEY` 未配置
+- 本次单次扫描在首次依赖与插件引导阶段耗时过长，未生成 `JSON` / `HTML` 报告文件
+- 高 / 中 / 低风险计数：`N/A`
+- 报告路径：`N/A`
+- README 安全徽章在本轮保持 `OWASP%20DC-pending-lightgrey`，避免伪造通过或发现状态
+
+后续建议：
+
+- 先配置 `NVD_API_KEY`
+- 先执行一次 `mvn -DskipTests package` 让 reactor 工件就绪，再重新运行现成的 `dependency-check:aggregate`
