@@ -9,5 +9,4 @@
 **/target
 !ruoyi-vue3-myems/dist
 !ruoyi-vue3-myems/dist/**
-!ruoyi-java-myems/ruoyi-admin/target/ruoyi-admin.jar
 docker/firestore-emulator
