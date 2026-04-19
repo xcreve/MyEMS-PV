@@ -222,3 +222,26 @@ $ docker compose -f docker/docker-compose.yml down -v
 1. 在不改动已发布 `v2.0.0` tag 的前提下，明确发布物交付口径：是要求仓库内自带 `dist` / `ruoyi-admin.jar`，还是要求部署前先执行一次前后端构建。
 2. 若后续继续演练，应先补齐与文档一致的前置产物，再从第 3 步重新执行 `docker compose ... up -d --build`。
 3. 单独评审 `docs/deploy_guide.md` 主流程，把“需先生成 `dist` / `ruoyi-admin.jar`”提升为主路径前置条件，避免再次在干净目录中按文档失败。
+
+## v2.0.0 部署可重复性局限
+
+已核验事实：
+
+1. `ruoyi-vue3-myems/.gitignore:3` 忽略 `dist/`，`ruoyi-vue3-myems/.gitignore:23-24` 忽略 `package-lock.json` 与 `yarn.lock`。这意味着前端发布产物和锁文件都不会随子仓提交进入 fresh clone。
+2. 2026-04-19 复跑前补采的实际命令证据表明，演练快照 `/tmp/myems-deploy-rehearsal-20260419-111510/ruoyi-vue3-myems` 中既没有 `dist/`，也没有 `package-lock.json`：
+
+```bash
+$ test -d ruoyi-vue3-myems/dist && echo PRESENT || echo MISSING
+MISSING
+
+$ test -f package-lock.json && { echo PACKAGE_LOCK_PRESENT; head -n 5 package-lock.json; } || echo PACKAGE_LOCK_MISSING
+PACKAGE_LOCK_MISSING
+```
+
+3. `docker/frontend/Dockerfile:3` 直接执行 `COPY ruoyi-vue3-myems/dist /usr/share/nginx/html`，不会在镜像构建过程中自行生成前端静态资源。
+
+结论：
+
+- `v2.0.0` 的部署主路径在 fresh clone 下不可重复，开发者必须先在本地执行 `mvn package` 生成后端 jar，再执行 `npm install` 与 `npm run build:prod` 生成前端 `dist/`，之后才能让当前 Dockerfile 完成镜像构建。
+- 该限制来自仓结构的既有选择，而不是 `v2.0.0` 单次发版疏漏。
+- 此限制将在 `v2.0.1` 通过锁文件提交与多阶段镜像构建消除。
