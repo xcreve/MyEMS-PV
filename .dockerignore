@@ -7,6 +7,4 @@
 **/coverage
 **/dist
 **/target
-!ruoyi-vue3-myems/dist
-!ruoyi-vue3-myems/dist/**
 docker/firestore-emulator
