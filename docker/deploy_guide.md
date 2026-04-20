@@ -2,9 +2,11 @@
 
 ## 1. 前置条件
 
+- Git 2.30+（用于 `git clone --recurse-submodules`）
 - Docker 24+
 - Docker Compose 2.20+
-- 可访问 `docker.m.daocloud.io` / Maven Central / npm registry，或预先缓存所需基础镜像
+- 宿主机可访问 Docker Hub；受限网络环境请预先配置 Docker daemon 级 `registry-mirror`
+- 前端依赖在镜像构建阶段自动通过 `registry.npmmirror.com` 拉取，后端依赖按子仓 `pom.xml` 中的 Maven 仓库配置解析
 - 宿主机预留端口：`80`、`8080`、`3306`、`6379`
 
 ## 2. 部署文件说明
@@ -21,9 +23,16 @@
 ## 3. 一键启动
 
 ```bash
+git clone --recurse-submodules https://github.com/xcreve/MyEMS-PV.git
+cd MyEMS-PV
 cp docker/.env.example docker/.env
 docker compose --env-file docker/.env -f docker/docker-compose.yml up -d --build
 ```
+
+主路径说明：
+
+- 该流程会在镜像构建阶段内完成前端 `dist` 与后端 `ruoyi-admin.jar` 构建
+- 无需本地先执行 `npm build`、`npm ci` 或 `mvn package`
 
 默认映射：
 
@@ -44,7 +53,8 @@ docker compose --env-file docker/.env -f docker/docker-compose.yml up -d --build
 
 ### 4.1 首次部署
 
-- 直接执行 `docker compose ... up -d --build`
+- 在 fresh clone 目录中按“3. 一键启动”执行 `docker compose --env-file docker/.env -f docker/docker-compose.yml up -d --build`
+- 不需要手工预构建前端 `dist` 或后端 `ruoyi-admin.jar`
 - 等待 `mysql` healthcheck 变为 `healthy`
 - 再执行冒烟脚本核验
 
@@ -169,9 +179,10 @@ where config_key = 'sys.account.captchaEnabled';
 
 处理：
 
-- 当前 Dockerfile 已默认使用 `docker.m.daocloud.io/library/*` 作为基础镜像源
-- 如果自行修改了 `FROM`，请改回镜像源或先手工 `docker pull` 对应镜像
-- 若企业网络必须走私有镜像仓，请同步修改 `docker/backend/Dockerfile` 与 `docker/frontend/Dockerfile`
+- 确认宿主机对 `registry-1.docker.io` 与 `auth.docker.io` 可达
+- 受限网络环境请先为 Docker daemon 配置 `registry-mirror`
+- 不要把部署手册主路径改写成手工 `docker pull` 或手工修改 Dockerfile `FROM`
+- 如必须切到企业私有镜像仓，请同步评估 `docker/backend/Dockerfile` 与 `docker/frontend/Dockerfile`
 
 ### 6.6 `/actuator/health` 返回 401 或 500
 
@@ -185,19 +196,17 @@ where config_key = 'sys.account.captchaEnabled';
 - 保持 `ruoyi-framework` 的 `SecurityConfig` 对 `/actuator/health`、`/actuator/health/**` 匿名放行
 - 确认 `ruoyi-admin/pom.xml` 已引入 `spring-boot-starter-actuator`
 - 确认 `application.yml` 已配置 `management.endpoints.web.exposure.include=health,info`
-- 变更后重打 jar 并执行 `docker compose --env-file docker/.env -f docker/docker-compose.yml up -d --build ruoyi-admin`
+- 变更后重新执行 `docker compose --env-file docker/.env -f docker/docker-compose.yml up -d --build ruoyi-admin`
 
-### 6.7 Docker 构建提示 COPY 文件不存在
+### 6.7 子模块未初始化或仓库不完整
 
 现象：
 
-- `COPY ruoyi-vue3-myems/dist ... not found`
-- 或 `COPY ruoyi-java-myems/ruoyi-admin/target/ruoyi-admin.jar ... not found`
+- 构建阶段提示 `COPY ruoyi-vue3-myems/ .` 或 `COPY ruoyi-java-myems/ .` 失败
+- 目录下缺少 `ruoyi-vue3-myems` 或 `ruoyi-java-myems` 的实际内容
 
 处理：
 
-- 保持根目录 `.dockerignore` 中对以下路径的白名单：
-  - `!ruoyi-vue3-myems/dist`
-  - `!ruoyi-vue3-myems/dist/**`
-  - `!ruoyi-java-myems/ruoyi-admin/target/ruoyi-admin.jar`
-- 重新执行前先确保已生成前端 `dist` 与后端 `ruoyi-admin.jar`
+- 优先按“3. 一键启动”从 `git clone --recurse-submodules` 开始重新获取代码
+- 如果仓库已存在，执行 `git submodule update --init --recursive`
+- 确认 `git submodule status` 中两个子模块都已检出后，再执行 `docker compose --env-file docker/.env -f docker/docker-compose.yml up -d --build`

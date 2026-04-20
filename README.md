@@ -85,15 +85,14 @@ MyEMS-PV/
 
 ### 前置条件
 
-- **JDK 17**（后端）
-- **Maven 3.8+**（后端）
-- **MySQL 8.0+**（数据库）
-- **Redis 6+**（RuoYi 默认依赖，用于 token/缓存）
-- **Node.js 18+**（前端）
+- **方式 A：Git 2.30+、Docker 24+、Docker Compose 2.20+**
+- **方式 B：JDK 17、Maven 3.8+、MySQL 8.0+、Redis 6+、Node.js 18+**
 
-### 方式 A. Docker Compose（UAT 推荐）
+### 方式 A. Docker Compose（UAT 推荐，唯一主路径）
 
 ```bash
+git clone --recurse-submodules https://github.com/xcreve/MyEMS-PV.git
+cd MyEMS-PV
 cp docker/.env.example docker/.env
 docker compose --env-file docker/.env -f docker/docker-compose.yml up -d --build
 ```
@@ -108,12 +107,13 @@ BASE_URL=http://localhost/prod-api ./scripts/smoke_test_websocket.sh
 说明：
 
 - `docker-compose.yml` 会启动 `MySQL 8 + Redis + ruoyi-admin + ruoyi-vue3`
+- Compose 构建会在镜像内部完成前端 `dist` 与后端 `ruoyi-admin.jar` 打包，无需本地预构建
 - MySQL 首次启动时会自动导入 `ry_20260321.sql`、`quartz.sql`、`myems_pv.sql`
 - UAT 引导脚本会自动关闭验证码，便于 `smoke_test.sh` 直接登录 `admin/admin123`
 - `smoke_test_websocket.sh` 优先使用 `websocat/wscat`，缺失时会自动回退到 Node 原生 `WebSocket`
 - 更完整的停机窗口、回滚与排障说明见 [deploy_guide.md](/Users/xuyongqian/AI%20Code/MyEMS-PV/docs/deploy_guide.md)
 
-### 方式 B. 本地开发初始化数据库
+### 方式 B. 本地开发初始化数据库（非部署主路径）
 
 ```bash
 # 1) 建库

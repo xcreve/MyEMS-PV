@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-04-20
+
+### Added
+
+- `ruoyi-vue3-myems/package-lock.json` 入仓（#1），为 `npm ci` 提供可复现 lockfile。
+
+### Changed
+
+- 后端 Docker 镜像改为 multi-stage 构建（#2）；由镜像构建阶段直接产出 `ruoyi-admin.jar`，不再依赖根仓预置产物。
+- 前端 Docker 镜像改为 multi-stage 构建（#3）；由镜像构建阶段直接产出前端 `dist`，不再依赖根仓预置产物。
+- `docs/deploy_guide.md`、`docker/deploy_guide.md` 与 `README.md` 的部署主路径统一为 `git clone --recurse-submodules` 后执行 `docker compose --env-file docker/.env -f docker/docker-compose.yml up -d --build`（#4）。
+
+### Fixed
+
+- 前端镜像构建阶段 `npm ci` 改为 `registry.npmmirror.com` + fetch retry，缓解默认 npm registry `ECONNRESET` 导致的构建失败（#3）。
+
 ## [2.0.0] - 2026-04-18
 
 ### Added
