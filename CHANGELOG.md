@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.3] - 2026-04-21
+
+### Added
+
+- P2-1 数据权限隔离：`pv_station` 新增 `dept_id` 列，`selectStationList`、`selectGatewayList`、`selectInverterList` 接入 RuoYi `@DataScope(deptAlias = "s")` 机制，支持按部门/角色隔离电站数据；新增迁移脚本 `sql/myems_pv_dept_scope.sql`。
+- 新建电站时自动绑定当前用户所属部门（`insertStation` 补 `deptId` 赋值）。
+- Quartz 后台轮询任务直接调用 `PvAssetMapper`，不经 Service AOP，无登录上下文时 `DataScopeAspect` 自动跳过，后台采集不受影响。
+
 ## [2.0.2] - 2026-04-21
 
 ### Added
@@ -97,6 +105,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | 版本 | 目标 | 关键内容 | 预计时间 |
 |------|------|----------|----------|
 | **v2.0.2** | 已发布 ✅ | P1-1 ModbusRTU + 设备级寄存器模板 + 安全修复 | 2026-04-21 |
-| **v2.0.3** | P2-1 多租户 | Mapper 层补 `dept_id` 数据权限过滤，所有 `Pv*Mapper.xml` 纳入部门隔离 | 待排期 |
+| **v2.0.3** | 已发布 ✅ | P2-1 `dept_id` 数据权限隔离（station/gateway/inverter 列表） | 2026-04-21 |
 | **v2.1.0** | 性能 + 运维 | Dashboard P95 < 100ms（JMeter 压测）、并发 200 用户验证、蓝绿部署方案 | 待排期 |
 | **v2.2.0** | P2 选做 | 多租户完善、InfluxDB 时序迁移、APM（SkyWalking/Prometheus）、移动端适配 | 按需 |
