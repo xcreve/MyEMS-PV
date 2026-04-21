@@ -1,0 +1,10 @@
+services:
+  ruoyi-admin:
+    container_name: myems-ruoyi-admin-green
+    ports: !override
+      - "8082:8080"
+
+  ruoyi-vue3:
+    container_name: myems-ruoyi-vue3-green
+    ports: !override
+      - "8280:80"

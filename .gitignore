@@ -13,3 +13,4 @@ firebase*.json
 .m2/
 .tmp-maven-central-settings.xml
 .claude/
+scripts/results/
