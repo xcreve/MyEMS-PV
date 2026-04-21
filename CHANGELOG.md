@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.2] - 2026-04-21
+
+### Added
+
+- P1-1 ModbusRTU RTU-over-TCP 驱动：`executeModbusRtuRead()` 实现标准 RTU 帧（无 MBAP header）+ CRC16 校验，通过 TCP socket 发送，兼容串口转以太网转换器；新增可注入 `ModbusRtuRegisterReader` 函数式接口，与 `ModbusTcpRegisterReader` 同构，支持单元测试 mock。
+- P1-1 设备级寄存器模板：`pv_inverter_model` 新增 `register_profile` 列；`PvMonitoringServiceImpl` 解析优先级为 `gateway.topic`（网关级）> `inverterModel.registerProfile`（型号级）> 内置默认值，按 poll cycle 缓存防止 N+1 查询；新增迁移脚本 `sql/myems_pv_modbus_rtu.sql`。
+
+### Fixed
+
+- 安全：从 git 全部历史中移除 `firebase-applet-config.json`、`firebase-blueprint.json`、`firestore.rules`（含 API Key 明文），并强推所有 tag；`.gitignore` 新增 `firebase-applet-config.json`、`firebase*.json`、`*-service-account*.json`、`*-credentials*.json` 防止同类文件再次入仓。
+
+### Tests
+
+- 新增 3 个单元测试用例：ModbusRTU live read（mock reader）、型号级寄存器模板 fallback、CRC16 正确性；全链路 94/94 通过。
+
 ## [2.0.1] - 2026-04-20
 
 ### Added
@@ -68,7 +83,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Known Limitations
 
-- P1-1 ModbusRTU 主动轮询仍待真实 RTU 设备或模拟器联调，不阻塞 `v2.0.0-rc1` 发布候选。
 - P2-16 APM 观测接入仍待生产环境接入 SkyWalking / Prometheus，不阻塞 `v2.0.0-rc1` 发布候选。
 
 ## [1.0.0] - 2025-xx-xx
@@ -77,3 +91,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 历史版本基于 React + Firebase 方案推进，菜单、认证、数据存储与当前 `RuoYi-Vue3 + Java + MySQL` 全栈形态存在较大差异。
 - `v2.0` 已将业务数据、权限模型、部署方式与测试体系统一收敛到若依标准栈，并移除旧版 Firebase/Express 运行依赖。
+
+## 版本节奏规划
+
+| 版本 | 目标 | 关键内容 | 预计时间 |
+|------|------|----------|----------|
+| **v2.0.2** | 已发布 ✅ | P1-1 ModbusRTU + 设备级寄存器模板 + 安全修复 | 2026-04-21 |
+| **v2.0.3** | P2-1 多租户 | Mapper 层补 `dept_id` 数据权限过滤，所有 `Pv*Mapper.xml` 纳入部门隔离 | 待排期 |
+| **v2.1.0** | 性能 + 运维 | Dashboard P95 < 100ms（JMeter 压测）、并发 200 用户验证、蓝绿部署方案 | 待排期 |
+| **v2.2.0** | P2 选做 | 多租户完善、InfluxDB 时序迁移、APM（SkyWalking/Prometheus）、移动端适配 | 按需 |
