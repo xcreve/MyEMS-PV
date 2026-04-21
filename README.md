@@ -537,7 +537,6 @@ docs(pv): 更新 README 中的 API 清单
 
 ---
 
-**项目根路径**: `/Users/xuyongqian/AI Code/MyEMS-PV/`  
 **维护者**: MyEMS Team  
 **License**: MIT  
 **Last Updated**: 2026-04-14 (Codex re-verified)
