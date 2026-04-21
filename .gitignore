@@ -6,6 +6,10 @@ coverage/
 *.log
 .env*
 !.env.example
+firebase-applet-config.json
+firebase*.json
+*-service-account*.json
+*-credentials*.json
 .m2/
 .tmp-maven-central-settings.xml
 .claude/
