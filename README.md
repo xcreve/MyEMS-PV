@@ -86,7 +86,7 @@ MyEMS-PV/
 ### 前置条件
 
 - **方式 A：Git 2.30+、Docker 24+、Docker Compose 2.20+**
-- **方式 B：JDK 17、Maven 3.8+、MySQL 8.0+、Redis 6+、Node.js 18+**
+- **方式 B：JDK 17、Maven 3.8+、MySQL 8.0+、Redis 6+、Node.js 20+**
 
 ### 方式 A. Docker Compose（UAT 推荐，唯一主路径）
 

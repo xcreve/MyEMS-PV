@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - 前端镜像构建阶段 `npm ci` 改为 `registry.npmmirror.com` + fetch retry，缓解默认 npm registry `ECONNRESET` 导致的构建失败（#3）。
+- 修复 v2.0.0-rc1 父仓 gitlink 漏 bump 的遗留问题：将前端子模块 gitlink 从 `bf43df7` 升到 `3cefbe8`（包含 `package-lock.json` 与 Node 20 LTS 引擎声明），并同步 `.gitmodules` 跟踪分支至 `release/v2.0.1`、Dockerfile 基础镜像升级到 `node:20-alpine`，解决干净克隆下 `npm ci` EUSAGE 失败。（follow-up #1）
 
 ## [2.0.0] - 2026-04-18
 
