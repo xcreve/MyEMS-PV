@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-04-21
+
+### Added
+
+- JMeter 压测计划 `scripts/jmeter/myems_pv_perf.jmx`：200 线程 × 10 分钟，覆盖 login / dashboard / station / gateway / alert 全链路，含 P95 响应断言。
+- 压测包装脚本 `scripts/run_perf_test.sh`：调用 JMeter、解析 `.jtl`，自动判断 `GET /pv/dashboard/summary` P95 < 100ms、`GET /pv/station/list` P95 < 80ms，退出码 0/1。
+- 蓝绿部署 compose override：`docker/docker-compose.blue.yml`（8081/8180）与 `docker/docker-compose.green.yml`（8082/8280），使用 `!override` 避免 base ports 合并冲突，`docker compose config` 双色验证通过。
+- 蓝绿切换脚本 `scripts/blue_green_switch.sh`：启动目标栈 → 健康轮询（`/actuator/health`）→ 前端可达性确认 → 打印切换提示与旧栈停止命令；支持 `--dry-run`。
+- 性能基线文档 `docs/perf_baseline_v2.1.0.md`：验收标准表、执行步骤、结果记录区、蓝绿 SOP。
+- `.gitignore` 追加 `scripts/results/`，防止 JMeter 结果文件入仓。
+
 ## [2.0.3] - 2026-04-21
 
 ### Added
@@ -106,5 +117,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 |------|------|----------|----------|
 | **v2.0.2** | 已发布 ✅ | P1-1 ModbusRTU + 设备级寄存器模板 + 安全修复 | 2026-04-21 |
 | **v2.0.3** | 已发布 ✅ | P2-1 `dept_id` 数据权限隔离（station/gateway/inverter 列表） | 2026-04-21 |
-| **v2.1.0** | 性能 + 运维 | Dashboard P95 < 100ms（JMeter 压测）、并发 200 用户验证、蓝绿部署方案 | 待排期 |
+| **v2.1.0** | 已发布 ✅ | JMeter 压测计划 + 蓝绿部署脚本 + 性能基线文档 | 2026-04-21 |
 | **v2.2.0** | P2 选做 | 多租户完善、InfluxDB 时序迁移、APM（SkyWalking/Prometheus）、移动端适配 | 按需 |
