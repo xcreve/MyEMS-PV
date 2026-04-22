@@ -18,10 +18,10 @@
 
 | 组件 | 镜像仓地址 | Tag | Multi-arch manifest digest | `linux/amd64` digest | `linux/arm64` digest | SBOM |
 |---|---|---|---|---|---|---|
-| backend | `ghcr.io/xcreve/myems-pv-backend` | `v2.2.0` | `sha256:1efdce34b29d677f55db62dd93d3589021660664fc7efd0ea50e1198ed1d23a0` | `sha256:bf7040974384071c32145968ebda185f61f40c35c2c44227a11fa016a03db6d2` | `sha256:4627b30d87ddc439fd7b40dd6c4e207741199c86dbfb57eeef9e593bf7e5fda5` | 待 CI 回填 |
-| backend | `ghcr.io/xcreve/myems-pv-backend` | `latest` | 跟随 `v2.2.0` | 跟随 `v2.2.0` | 跟随 `v2.2.0` | 待 CI 回填 |
-| frontend | `ghcr.io/xcreve/myems-pv-frontend` | `v2.2.0` | `sha256:d63aee4e85285f4d11f6121c9861856a23d3cb88948af5456f6dce2cae4f2d96` | `sha256:3120cbd727bb32f55cfbb20d837371dd32203838609cc71e65de87db3cdf3a8d` | `sha256:7133774489a69ef9f05aed121491a0593e7eb9019162696f278db16ab6b5f2a3` | 待 CI 回填 |
-| frontend | `ghcr.io/xcreve/myems-pv-frontend` | `latest` | 跟随 `v2.2.0` | 跟随 `v2.2.0` | 跟随 `v2.2.0` | 待 CI 回填 |
+| backend | `ghcr.io/xcreve/myems-pv-backend` | `v2.2.0` | `sha256:1efdce34b29d677f55db62dd93d3589021660664fc7efd0ea50e1198ed1d23a0` | `sha256:bf7040974384071c32145968ebda185f61f40c35c2c44227a11fa016a03db6d2` | `sha256:4627b30d87ddc439fd7b40dd6c4e207741199c86dbfb57eeef9e593bf7e5fda5` | N/A（历史版本 CI 未覆盖 SBOM 生成。自 `v2.3.0` 起由 release workflow 通过 `anchore/sbom-action@v0` 生成并上传为 action artifact，保留期 90 天；下载方式见 `release_pipeline_plan_v2.1.md` §4.3。） |
+| backend | `ghcr.io/xcreve/myems-pv-backend` | `latest` | 跟随 `v2.2.0` | 跟随 `v2.2.0` | 跟随 `v2.2.0` | N/A（历史版本 CI 未覆盖 SBOM 生成。自 `v2.3.0` 起由 release workflow 通过 `anchore/sbom-action@v0` 生成并上传为 action artifact，保留期 90 天；下载方式见 `release_pipeline_plan_v2.1.md` §4.3。） |
+| frontend | `ghcr.io/xcreve/myems-pv-frontend` | `v2.2.0` | `sha256:d63aee4e85285f4d11f6121c9861856a23d3cb88948af5456f6dce2cae4f2d96` | `sha256:3120cbd727bb32f55cfbb20d837371dd32203838609cc71e65de87db3cdf3a8d` | `sha256:7133774489a69ef9f05aed121491a0593e7eb9019162696f278db16ab6b5f2a3` | N/A（历史版本 CI 未覆盖 SBOM 生成。自 `v2.3.0` 起由 release workflow 通过 `anchore/sbom-action@v0` 生成并上传为 action artifact，保留期 90 天；下载方式见 `release_pipeline_plan_v2.1.md` §4.3。） |
+| frontend | `ghcr.io/xcreve/myems-pv-frontend` | `latest` | 跟随 `v2.2.0` | 跟随 `v2.2.0` | 跟随 `v2.2.0` | N/A（历史版本 CI 未覆盖 SBOM 生成。自 `v2.3.0` 起由 release workflow 通过 `anchore/sbom-action@v0` 生成并上传为 action artifact，保留期 90 天；下载方式见 `release_pipeline_plan_v2.1.md` §4.3。） |
 
 ## 3. 发布前置校验结论
 

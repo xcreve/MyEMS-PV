@@ -55,9 +55,12 @@
 
 ### 4.3 SBOM
 
-- 建议纳入
-- 首期可以至少对 backend / frontend 镜像各输出一份 SBOM，并在 release manifest 中记录下载位置或附件 URL
-- 若首期发布链路复杂度过高，可先保留 SBOM 作为非阻塞产物，但应为后续版本预留接口
+- 已纳入：`.github/workflows/release.yml` 使用 `anchore/sbom-action@v0` 为 backend / frontend 镜像各输出一份 SPDX JSON SBOM
+- SBOM artifact 命名：
+  - `sbom-backend-vX.Y.Z.spdx.json`
+  - `sbom-frontend-vX.Y.Z.spdx.json`
+- release manifest 应记录 SBOM artifact 名称或归档路径；历史版本若未被 CI 覆盖，应在 manifest 中明确说明
+- 历史边界：`v2.1.0` / `v2.2.0` SBOM 未覆盖；`v2.3.0` 起全量覆盖
 
 ## 5. 与现有 Dockerfile 的对接点
 
@@ -72,11 +75,11 @@
 - CI 状态为绿：构建、推送、产物归档全部成功
 - 镜像可拉取：至少验证 backend / frontend 的正式 tag 可从目标镜像仓拉取
 - digest 已写回 release manifest：包含镜像 tag 和 digest
-- 若纳入 SBOM：SBOM 下载路径或附件链接已写回 release manifest
+- SBOM artifact 已归档，下载路径、附件链接或历史覆盖说明已写回 release manifest
 - 发布完成后，GitHub Release 或 release checklist 中应能追溯镜像 tag、digest 与对应 Git tag
 
 ## 7. 后续实现边界
 
-- 本轮不创建 `.github/workflows/`
+- 发布流水线实现位于 `.github/workflows/release.yml`
 - 本轮不修改 Dockerfile
 - 本文件仅定义 `v2.1` 发布流水线设计输入，供下一轮实施时使用

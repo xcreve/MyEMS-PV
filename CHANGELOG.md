@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Release Images workflow 增加 `workflow_dispatch` 手动触发入口，并通过 `anchore/sbom-action@v0` 为 backend/frontend 镜像生成 SPDX JSON SBOM artifact；历史 release manifest 同步记录 SBOM 覆盖状态。
+
 ## [2.2.0] - 2026-04-22
 
 ### Added

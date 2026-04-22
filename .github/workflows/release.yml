@@ -4,19 +4,25 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Existing release tag to build, for example v2.2.1"
+        required: true
+        type: string
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 concurrency:
-  group: release-${{ github.ref_name }}
+  group: release-${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
   build-and-push:
     name: Build ${{ matrix.component }} image
-    if: ${{ startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, '-rc') }}
+    if: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, '-rc')) || (github.event_name == 'workflow_dispatch' && startsWith(inputs.release_tag, 'v') && !contains(inputs.release_tag, '-rc')) }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -33,20 +39,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref }}
           submodules: recursive
 
       - name: Prepare image metadata
         id: meta
         shell: bash
+        env:
+          RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref_name }}
         run: |
           owner="$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
           image="ghcr.io/${owner}/${{ matrix.image }}"
-          version="${GITHUB_REF_NAME}"
+          version="${RELEASE_TAG}"
+          source_sha="$(git rev-parse HEAD)"
           {
             echo "image=${image}"
             echo "version=${version}"
             echo "tagged_image=${image}:${version}"
             echo "latest_image=${image}:latest"
+            echo "source_sha=${source_sha}"
           } >> "${GITHUB_OUTPUT}"
 
       - name: Set up QEMU
@@ -75,7 +86,7 @@ jobs:
             ${{ steps.meta.outputs.latest_image }}
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.revision=${{ steps.meta.outputs.source_sha }}
             org.opencontainers.image.version=${{ steps.meta.outputs.version }}
 
       - name: Inspect pushed manifest
@@ -123,6 +134,19 @@ jobs:
           path: release-digests/${{ matrix.component }}.txt
           if-no-files-found: error
 
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ steps.meta.outputs.tagged_image }}
+          registry-username: ${{ github.actor }}
+          registry-password: ${{ secrets.GITHUB_TOKEN }}
+          format: spdx-json
+          artifact-name: sbom-${{ matrix.component }}-${{ steps.meta.outputs.version }}.spdx.json
+          output-file: sbom-${{ matrix.component }}-${{ steps.meta.outputs.version }}.spdx.json
+          upload-artifact: true
+          upload-artifact-retention: 90
+          upload-release-assets: false
+
       - name: Summary
         shell: bash
         run: |
@@ -134,4 +158,5 @@ jobs:
             echo "- Multi-arch digest: \`${{ steps.build.outputs.digest }}\`"
             echo "- linux/amd64 digest: \`${{ steps.inspect.outputs.amd64_digest }}\`"
             echo "- linux/arm64 digest: \`${{ steps.inspect.outputs.arm64_digest }}\`"
+            echo "- SBOM: \`sbom-${{ matrix.component }}-${{ steps.meta.outputs.version }}.spdx.json\` (action artifact)"
           } >> "${GITHUB_STEP_SUMMARY}"
