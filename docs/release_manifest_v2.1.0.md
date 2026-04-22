@@ -18,9 +18,9 @@
 
 | 组件 | 镜像仓地址 | Tag | Multi-arch manifest digest | `linux/amd64` digest | `linux/arm64` digest | SBOM |
 |---|---|---|---|---|---|---|
-| backend | `ghcr.io/xcreve/myems-pv-backend` | `v2.1.0` | 待 CI 回填 | 待 CI 回填 | 待 CI 回填 | 待 CI 回填 |
+| backend | `ghcr.io/xcreve/myems-pv-backend` | `v2.1.0` | `sha256:3c016d69124f23672a94fe14ec578645009102881a023f96a6942b40324a3fe6` | `sha256:6f84aeec15c1fe4f4636e3f14542adfc4c7d66758e2ee2fd229010a9110ab81c` | `sha256:5a050ed51e652214a2f2ef94b2aeeeb404219f7f492d4856453919ff35aa2db0` | 待 CI 回填 |
 | backend | `ghcr.io/xcreve/myems-pv-backend` | `latest` | 跟随 `v2.1.0` | 跟随 `v2.1.0` | 跟随 `v2.1.0` | 待 CI 回填 |
-| frontend | `ghcr.io/xcreve/myems-pv-frontend` | `v2.1.0` | 待 CI 回填 | 待 CI 回填 | 待 CI 回填 | 待 CI 回填 |
+| frontend | `ghcr.io/xcreve/myems-pv-frontend` | `v2.1.0` | `sha256:555728663093b8dbbf4d0f4a544129021089644558650147a2ceab6324ab485b` | `sha256:03d40dee07c65549a12c90cf8dcdbe69b236f1a255bcb3d7d214539a82b27ef3` | `sha256:f28eae2c15d2290f1d477208bce3fade17dced41a8d7eae30bc3cf9b093c10ec` | 待 CI 回填 |
 | frontend | `ghcr.io/xcreve/myems-pv-frontend` | `latest` | 跟随 `v2.1.0` | 跟随 `v2.1.0` | 跟随 `v2.1.0` | 待 CI 回填 |
 
 ## 3. 发布前置校验结论
@@ -49,4 +49,4 @@ git submodule update --init --recursive
 
 ## 6. Digest 回填说明
 
-正式 tag 推送后，`.github/workflows/release.yml` 会构建并推送 `linux/amd64,linux/arm64` multi-arch 镜像，并归档 multi-arch manifest digest 与各平台 digest。CI 输出的 digest 应回填到本文件第 2 节。
+正式 tag 推送后，`.github/workflows/release.yml` 已构建并推送 `linux/amd64,linux/arm64` multi-arch 镜像，并归档 multi-arch manifest digest 与各平台 digest。本文件第 2 节 digest 来自 GHCR `v2.1.0` tag 的 `docker buildx imagetools inspect` 结果。
