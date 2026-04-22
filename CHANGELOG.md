@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-04-22
+
+### Added
+
+- `pv_telemetry` 月分区迁移交付：按 `collect_time` 建立当前月起 12 个月滚动分区窗口，保留 `pmax` 兜底分区。
+- Quartz 分区维护任务 `pvTelemetryPartitionMaintainTask.maintainMonthlyPartitions(12)`，每月 1 日凌晨自动补齐未来分区并清理过期月分区。
+- `scripts/runbook_pv_telemetry_partition.md` 回填本地 Docker Compose 验证结论，覆盖预检、迁移脚本、维护脚本、模拟写入和 Quartz 手动触发。
+
+### Tests
+
+- Docker Compose 本地环境验证 `pv_telemetry` 分区为 `p202604` 至 `p202703` + `pmax`，模拟写入的 3 条遥测记录落入 `p202604`。
+- `mvn -pl ruoyi-quartz -am test` 通过。
+
 ## [2.1.0] - 2026-04-21
 
 ### Added
@@ -118,4 +131,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | **v2.0.2** | 已发布 ✅ | P1-1 ModbusRTU + 设备级寄存器模板 + 安全修复 | 2026-04-21 |
 | **v2.0.3** | 已发布 ✅ | P2-1 `dept_id` 数据权限隔离（station/gateway/inverter 列表） | 2026-04-21 |
 | **v2.1.0** | 已发布 ✅ | JMeter 压测计划 + 蓝绿部署脚本 + 性能基线文档 | 2026-04-21 |
-| **v2.2.0** | P2 选做 | 多租户完善、InfluxDB 时序迁移、APM（SkyWalking/Prometheus）、移动端适配 | 按需 |
+| **v2.2.0** | 已发布 ✅ | `pv_telemetry` 月分区迁移 + Quartz 分区维护任务 | 2026-04-22 |

@@ -71,6 +71,23 @@
 5. 恢复应用和任务。
 6. 手动执行一次月维护脚本，确认 `pmax` 仍在且新增/删除逻辑正常。
 
+## 本地验证结论（2026-04-22）
+
+环境：Docker Compose 本地单机，后端子模块 `3ada7f42`，MySQL 容器 `myems-mysql`。
+
+预检结论：
+
+- `show create table pv_telemetry` 确认 `collect_time datetime not null`，主键为 `(telemetry_id, collect_time)`。
+- 三条写入路径均使用同一 `collect_time` 语义：MQTT `PvMqttIngestService` 使用样本时间或接收时间，模拟写入 `/pv/dashboard/simulate` 使用 `DateUtils.getNowDate()`，主动轮询 `PvGatewayPollingTask` 通过 `PvMonitoringServiceImpl.pollGatewayTelemetry()` 写入当前采集时间。
+- 迁移脚本验证前数据规模：`pv_telemetry` 103 行，`collect_time` 范围 `2026-04-21 04:31:09` 至 `2026-04-22 19:16:00`，按月聚合仅 `2026-04`。
+
+执行结论：
+
+- 本地数据量属于小表，按决策树选择“直接重建”方案；执行 `ruoyi-java-myems/sql/pv_telemetry_partition.sql` 创建 `pv_telemetry_part` 并导数，源表/目标表对账均为 103 行。
+- 执行 `ruoyi-java-myems/sql/pv_telemetry_partition_maintain.sql` 成功；`pv_telemetry` 保持 `p202604` 至 `p202703` 与 `pmax` 分区窗口。
+- 登录后触发 `/pv/dashboard/simulate` 返回 `simulated=3`，新增遥测 `telemetry_id` 107、108、109 的 `collect_time` 为 `2026-04-22 19:22:41`，均可从 `pv_telemetry partition(p202604)` 查到。
+- 手动触发 `pvTelemetryPartitionMaintainTask.maintainMonthlyPartitions(12)` 成功，`sys_job_log.status=0`。
+
 ## 回滚方案
 
 若在 `rename table` 前失败：
